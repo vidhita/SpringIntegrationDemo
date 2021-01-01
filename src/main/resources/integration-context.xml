@@ -12,9 +12,10 @@
     
     <!-- Channel -->
     <int:channel id="inputChannel"/>
+    <int:channel id="outputChannel"/>
 
     <!-- EndPoint -->
-    <int:service-activator ref="printService" input-channel="inputChannel" method="print" />
+    <int:service-activator ref="printService" input-channel="inputChannel" method="print" output-channel="outputChannel"/>
 
     <!-- Spring Bean -->
     <bean id="printService" class="com.vidhita.integration.PrintService" />

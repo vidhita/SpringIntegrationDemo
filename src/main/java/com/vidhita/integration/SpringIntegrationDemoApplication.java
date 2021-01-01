@@ -1,6 +1,7 @@
 package com.vidhita.integration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -22,7 +23,12 @@ public class SpringIntegrationDemoApplication implements ApplicationRunner {
 	private CustomGateway gateway;
 
 	@Autowired
-	DirectChannel channel;
+	@Qualifier("inputChannel")
+	DirectChannel inputChannel;
+
+	@Autowired
+	@Qualifier("outputChannel")
+	DirectChannel outputChannel;
 
 	public static void main(String[] args) {
 		SpringApplication.run(SpringIntegrationDemoApplication.class, args);
@@ -31,11 +37,11 @@ public class SpringIntegrationDemoApplication implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 
-			channel.subscribe(
+			outputChannel.subscribe(
 				new MessageHandler() {
 					@Override
 					public void handleMessage(Message<?> message) throws MessagingException {
-						new PrintService().print((Message<String>) message);
+						System.out.println( message.getPayload());
 					}
 				}
 		);
@@ -43,6 +49,6 @@ public class SpringIntegrationDemoApplication implements ApplicationRunner {
 		Message<String> message = MessageBuilder.withPayload("Using Builder Patter with Direct Channel")
 				.setHeader("headerKey1","value1")
 				.build();
-		channel.send(message);
+		inputChannel.send(message);
 	}
 }
