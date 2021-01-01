@@ -15,7 +15,7 @@
     <int:channel id="outputChannel"/>
 
     <!-- EndPoint -->
-    <int:service-activator ref="printService" input-channel="inputChannel" method="print" output-channel="outputChannel"/>
+    <int:service-activator ref="printService" input-channel="inputChannel" method="print"/>
 
     <!-- Spring Bean -->
     <bean id="printService" class="com.vidhita.integration.PrintService" />

@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.integration.channel.DirectChannel;
+import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessagingException;
@@ -23,12 +24,7 @@ public class SpringIntegrationDemoApplication implements ApplicationRunner {
 	private CustomGateway gateway;
 
 	@Autowired
-	@Qualifier("inputChannel")
 	DirectChannel inputChannel;
-
-	@Autowired
-	@Qualifier("outputChannel")
-	DirectChannel outputChannel;
 
 	public static void main(String[] args) {
 		SpringApplication.run(SpringIntegrationDemoApplication.class, args);
@@ -37,18 +33,13 @@ public class SpringIntegrationDemoApplication implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 
-			outputChannel.subscribe(
-				new MessageHandler() {
-					@Override
-					public void handleMessage(Message<?> message) throws MessagingException {
-						System.out.println( message.getPayload());
-					}
-				}
-		);
 		gateway.print("Hello World From Gateway");
-		Message<String> message = MessageBuilder.withPayload("Using Builder Patter with Direct Channel")
+		Message<String> message = MessageBuilder.withPayload("Using Builder Pattern with Direct Channel")
 				.setHeader("headerKey1","value1")
 				.build();
-		inputChannel.send(message);
+
+		MessagingTemplate template = new MessagingTemplate();
+		Message returnMessage = template.sendAndReceive(inputChannel,message);
+		System.out.println(returnMessage.getPayload());
 	}
 }
