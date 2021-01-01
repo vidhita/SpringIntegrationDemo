@@ -1,3 +1,3 @@
 # SpringIntegrationDemo
-# Demo App to check basic Spring Integration Framework with Spring Boot. 
+### Demo App to check basic Spring Integration Framework with Spring Boot. 
 
