@@ -13,8 +13,10 @@ public class PrintService {
     public Message<String> print(Message<String> message){
         System.out.println(message.getPayload());
         MessageHeaders headers = message.getHeaders();
-        headers.forEach((k,v)->System.out.println(k + ":"+v));
-        return MessageBuilder.withPayload("Message From PrintService").build();
+        //headers.forEach((k,v)->System.out.println(k + ":"+v));
+        int messageNumber = (int)message.getHeaders().get("messageNumber");
+
+        return MessageBuilder.withPayload("Message From PrintService" + messageNumber).build();
     }
 
 }

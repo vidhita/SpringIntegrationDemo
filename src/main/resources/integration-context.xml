@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:int="http://www.springframework.org/schema/integration"
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+               http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <int:gateway service-interface="com.vidhita.integration.CustomGateway"
+                 default-request-channel="inputChannel">
 
-        <!-- EndPoint -->
-    <int:gateway service-interface="com.vidhita.integration.CustomGateway" default-request-channel="inputChannel">
-        <int:method name="print"/>
     </int:gateway>
-    
-    <!-- Channel -->
-    <int:channel id="inputChannel"/>
-    <int:channel id="outputChannel"/>
 
-    <!-- EndPoint -->
-    <int:service-activator ref="printService" input-channel="inputChannel" method="print"/>
+    <int:publish-subscribe-channel id="inputChannel">
+        </int:publish-subscribe-channel>
 
-    <!-- Spring Bean -->
     <bean id="printService" class="com.vidhita.integration.PrintService" />
-
-    <!-- Spring Bean -->
     <bean id="reverseService" class="com.vidhita.integration.ReverseService" />
+
+    <int:service-activator ref="printService" input-channel="inputChannel" method="print">
+    </int:service-activator>
+
+    <int:service-activator ref="reverseService" input-channel="inputChannel" method="print">
+    </int:service-activator>
+
 
 </beans>
