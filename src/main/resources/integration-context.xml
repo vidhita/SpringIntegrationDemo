@@ -14,6 +14,9 @@
     </int:gateway>
     <int:channel id="pollableChannel">
         <int:queue capacity="10" />
+        <int:interceptors>
+            <int:ref bean="interceptor"/>
+        </int:interceptors>
     </int:channel>
     <int:bridge input-channel="pollableChannel" output-channel="inputChannel">
         <int:poller fixed-delay="5" time-unit="SECONDS" max-messages-per-poll="2">
