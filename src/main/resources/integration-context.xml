@@ -2,24 +2,35 @@
 
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:task="http://www.springframework.org/schema/task"
        xmlns="http://www.springframework.org/schema/beans"
-       xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+       xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+       http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
                http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
     <int:gateway service-interface="com.vidhita.integration.CustomGateway"
-                 default-request-channel="inputChannel">
+                 default-request-channel="pollableChannel">
 
     </int:gateway>
-
-    <int:publish-subscribe-channel id="inputChannel">
+    <int:channel id="pollableChannel">
+        <int:queue capacity="10" />
+    </int:channel>
+    <int:bridge input-channel="pollableChannel" output-channel="inputChannel">
+        <int:poller fixed-delay="5" time-unit="SECONDS" max-messages-per-poll="2">
+        </int:poller>
+    </int:bridge>
+    <task:executor id="executor" pool-size="5"/>
+    <int:publish-subscribe-channel id="inputChannel" apply-sequence="true" task-executor="executor">
         </int:publish-subscribe-channel>
 
     <bean id="printService" class="com.vidhita.integration.PrintService" />
     <bean id="reverseService" class="com.vidhita.integration.ReverseService" />
+    <bean id="interceptor" class="com.vidhita.integration.CustomChannelInterceptor" />
 
-    <int:service-activator ref="printService" input-channel="inputChannel" method="print">
+    <int:service-activator order="1" ref="printService" input-channel="inputChannel" method="print">
     </int:service-activator>
 
-    <int:service-activator ref="reverseService" input-channel="inputChannel" method="print">
+    <int:service-activator  order="2" ref="reverseService" input-channel="inputChannel" method="reverse">
     </int:service-activator>
 
 
