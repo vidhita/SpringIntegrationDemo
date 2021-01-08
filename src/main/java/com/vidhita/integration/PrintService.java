@@ -6,17 +6,10 @@ import org.springframework.messaging.support.MessageBuilder;
 
 public class PrintService {
 
-//    public void print(String message){
-//        System.out.println(message);
-//    }
-
     public Message<String> print(Message<String> message){
         System.out.println(message.getPayload());
-        MessageHeaders headers = message.getHeaders();
-        //headers.forEach((k,v)->System.out.println(k + ":"+v));
-        int messageNumber = (int)message.getHeaders().get("messageNumber");
 
-        return MessageBuilder.withPayload("Message From PrintService" + messageNumber).build();
+        return MessageBuilder.withPayload(message.getPayload().toString()).build();
     }
 
 }

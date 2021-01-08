@@ -35,27 +35,12 @@ public class SpringIntegrationDemoApplication implements ApplicationRunner {
 
 	@Override
 	public void run(ApplicationArguments args) throws ExecutionException, InterruptedException {
+		String[] payLoads = {"Joe Field", "New Calport", "John Doe"};
+		for (int x=0; x<payLoads.length; x++){
+			Message<?> message = MessageBuilder.withPayload(payLoads[x]).build();
+			this.gateway.print(message);
 
-
-//		gateway.print("Hello World From Gateway");
-//		Message<String> message = MessageBuilder.withPayload("Using Builder Pattern with Direct Channel")
-//				.setHeader("headerKey1","value1")
-//				.build();
-//
-//		MessagingTemplate template = new MessagingTemplate();
-//		Message returnMessage = template.sendAndReceive(inputChannel,message);
-//		System.out.println(returnMessage.getPayload());
-
-		List<Future<Message<String>>> futures = new ArrayList<Future<Message<String>>>();
-		for (int x=0; x<10; x++){
-			Message<String> message1 = MessageBuilder.withPayload("Printing Message Payload For "+x)
-					.setHeader("messageNumber",x).build();
-			System.out.println("Sending Message "+x);
-			futures.add((Future<Message<String>>) this.gateway.print(message1));
 		}
 
-		for (Future<Message<String>> future : futures){
-			System.out.println(future.get().getPayload());
-		}
 	}
 }

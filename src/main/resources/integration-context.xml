@@ -9,32 +9,21 @@
                http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <int:gateway service-interface="com.vidhita.integration.CustomGateway"
-                 default-request-channel="pollableChannel">
-
+                 default-request-channel="inputChannel">
     </int:gateway>
-    <int:channel id="pollableChannel">
-        <int:queue capacity="10" />
-        <int:interceptors>
-            <int:ref bean="interceptor"/>
-        </int:interceptors>
-    </int:channel>
-    <int:bridge input-channel="pollableChannel" output-channel="inputChannel">
-        <int:poller fixed-delay="5" time-unit="SECONDS" max-messages-per-poll="2">
-        </int:poller>
-    </int:bridge>
-    <task:executor id="executor" pool-size="5"/>
-    <int:publish-subscribe-channel id="inputChannel" apply-sequence="true" task-executor="executor">
-        </int:publish-subscribe-channel>
+    <int:channel id="inputChannel" />
+    <int:channel id="outputChannel" />
+    <int:channel id="agChannel" />
+
+<!--    <bean id="customRouter" class="com.vidhita.integration.CustomRouter" />-->
+<!--    <int:router ref="customRouter" input-channel="inputChannel" />-->
+
+    <bean class="com.vidhita.integration.CustomSplitter" id="customSplitter" />
+    <int:splitter ref="customSplitter" input-channel="inputChannel" output-channel="agChannel" />
+
+    <int:aggregator input-channel="agChannel" output-channel="outputChannel" />
 
     <bean id="printService" class="com.vidhita.integration.PrintService" />
-    <bean id="reverseService" class="com.vidhita.integration.ReverseService" />
-    <bean id="interceptor" class="com.vidhita.integration.CustomChannelInterceptor" />
+    <int:service-activator order="1" ref="printService" input-channel="outputChannel" method="print" />
 
-    <int:service-activator order="1" ref="printService" input-channel="inputChannel" method="print">
-    </int:service-activator>
-
-    <int:service-activator  order="2" ref="reverseService" input-channel="inputChannel" method="reverse">
-    </int:service-activator>
-
-
-</beans>
+    </beans>
