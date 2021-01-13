@@ -8,23 +8,15 @@
        http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
                http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <int:gateway service-interface="com.vidhita.integration.CustomGateway"
-                 default-request-channel="inputChannel">
-    </int:gateway>
-    <int:channel id="inputChannel" />
-    <int:channel id="outputChannel" />
-    <int:channel id="agChannel" />
+    <bean id="personDirectoryService" class="com.vidhita.integration.PersonDirectoryService"/>
 
-<!--    <bean id="customRouter" class="com.vidhita.integration.CustomRouter" />-->
-<!--    <int:router ref="customRouter" input-channel="inputChannel" />-->
+    <int:inbound-channel-adapter ref="personDirectoryService" method="findNewPerson" channel="registerChannel">
+        <int:poller fixed-rate="3000" />
+    </int:inbound-channel-adapter>
 
-    <bean class="com.vidhita.integration.CustomSplitter" id="customSplitter" />
-    <int:splitter ref="customSplitter" input-channel="inputChannel" output-channel="agChannel" />
+    <int:channel id="registerChannel" />
 
-    <bean class="com.vidhita.integration.CustomAggregator" id="customAggregator" />
-    <int:aggregator ref="customAggregator" input-channel="agChannel" output-channel="outputChannel" />
-
-    <bean id="printService" class="com.vidhita.integration.PrintService" />
-    <int:service-activator order="1" ref="printService" input-channel="outputChannel" method="print" />
+    <bean id="personRegistrationService" class="com.vidhita.integration.PersonRegistrationService"/>
+    <int:outbound-channel-adapter ref="personRegistrationService" method="registerEmail" channel="registerChannel" />
 
     </beans>

@@ -25,8 +25,6 @@ import java.util.concurrent.Future;
 @ImportResource("integration-context.xml")
 public class SpringIntegrationDemoApplication implements ApplicationRunner {
 
-	@Autowired
-	CustomGateway gateway;
 
 
 	public static void main(String[] args) {
@@ -35,12 +33,6 @@ public class SpringIntegrationDemoApplication implements ApplicationRunner {
 
 	@Override
 	public void run(ApplicationArguments args) throws ExecutionException, InterruptedException {
-		String[] payLoads = {"Joe Field", "New Calport", "John Doe"};
-		for (int x=0; x<payLoads.length; x++){
-			Message<?> message = MessageBuilder.withPayload(payLoads[x]).build();
-			this.gateway.print(message);
-
-		}
 
 	}
 }
