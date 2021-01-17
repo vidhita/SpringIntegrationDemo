@@ -23,9 +23,7 @@
         <constructor-arg value="sample.queue"/>
     </bean>
 
-    <int-jms:inbound-channel-adapter connection-factory="connectionFactory" destination="queue" channel="jmsChannel">
-        <int:poller fixed-rate="7000" />
-    </int-jms:inbound-channel-adapter>
+    <int-jms:message-driven-channel-adapter connection-factory="connectionFactory" destination="queue" channel="jmsChannel" />
 
     <int:gateway service-interface="com.vidhita.integration.PersonGateway" default-request-channel="inboundChannel"/>
     <int:object-to-string-transformer input-channel="inboundChannel" output-channel="outboundChannel" />
