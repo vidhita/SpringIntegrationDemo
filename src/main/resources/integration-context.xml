@@ -2,21 +2,38 @@
 
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:int="http://www.springframework.org/schema/integration"
-       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:int-jms="http://www.springframework.org/schema/integration/jms"
+       xmlns:file="http://www.springframework.org/schema/integration/file"
        xmlns="http://www.springframework.org/schema/beans"
-       xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
-       http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
-               http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+       http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+       http://www.springframework.org/schema/integration/jms http://www.springframework.org/schema/integration/jms/spring-integration-jms.xsd
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="personDirectoryService" class="com.vidhita.integration.PersonDirectoryService"/>
 
-    <int:inbound-channel-adapter ref="personDirectoryService" method="findNewPerson" channel="registerChannel">
-        <int:poller fixed-rate="3000" />
-    </int:inbound-channel-adapter>
+    <bean id="connectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="targetConnectionFactory">
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <property name="brokerURL" value="tcp://localhost:61616"/>
+            </bean>
+        </property>
+    </bean>
 
-    <int:channel id="registerChannel" />
+    <bean id="queue" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="sample.queue"/>
+    </bean>
 
-    <bean id="personRegistrationService" class="com.vidhita.integration.PersonRegistrationService"/>
-    <int:outbound-channel-adapter ref="personRegistrationService" method="registerEmail" channel="registerChannel" />
+    <int-jms:inbound-channel-adapter connection-factory="connectionFactory" destination="queue" channel="jmsChannel">
+        <int:poller fixed-rate="7000" />
+    </int-jms:inbound-channel-adapter>
 
-    </beans>
+    <int:gateway service-interface="com.vidhita.integration.PersonGateway" default-request-channel="inboundChannel"/>
+    <int:object-to-string-transformer input-channel="inboundChannel" output-channel="outboundChannel" />
+    <int-jms:outbound-channel-adapter connection-factory="connectionFactory" channel="outboundChannel" destination="queue"/>
+    <int:channel id="inboundChannel" />
+
+    <int:channel id="outboundChannel" />
+    <int:channel id="jmsChannel" />
+    <bean id="mp" class="com.vidhita.integration.MessagePrinter" />
+    <int:service-activator ref="mp" method="print" input-channel="jmsChannel" />
+</beans>
